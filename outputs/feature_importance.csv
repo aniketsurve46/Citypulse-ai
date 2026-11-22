@@ -1,0 +1,36 @@
+feature,importance,level,source
+sr_type,0.7354952,source_feature,
+owner_department,0.13973539,source_feature,
+ward,0.045810796,source_feature,
+origin,0.03649584,source_feature,
+community_area,0.025076617,source_feature,
+zip_code,0.015071479,source_feature,
+duplicate_flag,0.0012267599,source_feature,
+created_month,0.00076937507,source_feature,
+created_hour,0.00018653218,source_feature,
+created_day_of_week,0.00013198657,source_feature,
+sr_type_Graffiti Removal Request,0.097753614,encoded_feature,sr_type
+sr_type_Garbage Cart Maintenance,0.08427329,encoded_feature,sr_type
+sr_type_Tree Trim Request (NO LONGER BEING ACCEPTED),0.049397435,encoded_feature,sr_type
+sr_type_Blue Recycling Cart,0.04834335,encoded_feature,sr_type
+owner_department_Finance,0.040900365,encoded_feature,owner_department
+owner_department_DOB - Buildings,0.04066182,encoded_feature,owner_department
+sr_type_Pothole in Street Complaint,0.03943019,encoded_feature,sr_type
+sr_type_Rodent Baiting/Rat Complaint,0.035263952,encoded_feature,sr_type
+sr_type_Tree Emergency,0.031755388,encoded_feature,sr_type
+sr_type_Finance Parking Code Enforcement Review,0.027944017,encoded_feature,sr_type
+owner_department_Animal Care and Control,0.024899878,encoded_feature,owner_department
+sr_type_Abandoned Vehicle Complaint,0.018096609,encoded_feature,sr_type
+sr_type_Divvy Bike Parking Complaint,0.016030136,encoded_feature,sr_type
+sr_type_Alley Pothole Complaint,0.01585467,encoded_feature,sr_type
+origin_Mass Entry,0.015487708,encoded_feature,origin
+sr_type_Buildings - Plumbing Violation,0.01542332,encoded_feature,sr_type
+sr_type_Tree Debris Clean-Up Request,0.015360066,encoded_feature,sr_type
+sr_type_Pet Wellness Check Request,0.014957283,encoded_feature,sr_type
+sr_type_Street Light Out Complaint,0.01303458,encoded_feature,sr_type
+owner_department_BACP - Business Affairs and Consumer Protection,0.013012239,encoded_feature,owner_department
+sr_type_Traffic Signal Out Complaint,0.012326543,encoded_feature,sr_type
+sr_type_Water Lead Test Kit Request,0.012267673,encoded_feature,sr_type
+sr_type_Nuisance Animal Complaint,0.012139645,encoded_feature,sr_type
+sr_type_Dead Animal Pick-Up Request,0.01028234,encoded_feature,sr_type
+owner_department_CDOT - Department of Transportation,0.009016543,encoded_feature,owner_department

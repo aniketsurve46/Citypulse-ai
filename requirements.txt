@@ -1,0 +1,10 @@
+pandas>=2.1,<2.3
+numpy>=1.26,<2.1
+scikit-learn>=1.4,<1.6
+xgboost>=2.0,<2.2
+requests>=2.31
+streamlit>=1.37,<1.41
+pydeck>=0.8,<0.10
+plotly>=5.20,<5.25
+pyarrow>=14.0
+matplotlib>=3.8

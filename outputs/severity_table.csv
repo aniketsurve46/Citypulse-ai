@@ -1,0 +1,99 @@
+sr_type,severity_tier,severity_score
+Abandoned Vehicle Complaint,Medium,0.5
+Alley Light Out Complaint,High,0.75
+Alley Pothole Complaint,High,0.75
+Alley Sewer Inspection Request,Medium,0.5
+Animal In Trap Complaint,Medium,0.4
+Bee/Wasp Removal,Medium,0.4
+Bicycle Request/Complaint,Low,0.25
+Blue Recycling Cart,Medium,0.5
+Building Violation,High,0.75
+Buildings - Plumbing Violation,High,0.75
+Bungalow/Vintage Home Information Request,Low,0.25
+Business Complaints,Low,0.25
+Cab Feedback,Low,0.25
+Cable TV Complaint,Medium,0.4
+Check for Leak,Critical,1.0
+City Vehicle Sticker Violation,Low,0.25
+Clean Vacant Lot Request,Medium,0.5
+Clean and Green Program Request,Medium,0.4
+Commercial Fire Safety Inspection Request,Medium,0.4
+Consumer Fraud Complaint,Low,0.25
+Consumer Retail Business Complaint,Low,0.25
+Coyote Interaction Complaint,Medium,0.4
+Dead Animal Pick-Up Request,High,0.75
+Dead Bird,Medium,0.4
+Divvy Bike Parking Complaint,Low,0.25
+E-Scooter Parking Complaint,Low,0.25
+Finance Parking Code Enforcement Review,Low,0.25
+Fly Dumping Complaint,High,0.75
+Garbage Cart Maintenance,Medium,0.5
+Graffiti Removal Request,Low,0.25
+Home Buyer Program Info Request,Medium,0.4
+Inaccurate Fuel Pump Complaint,Medium,0.4
+Inaccurate Retail Scales Complaint,Medium,0.4
+Inspect Public Way Request,Medium,0.5
+Lead Inspection Request,Medium,0.4
+Low Water Pressure Complaint,High,0.75
+Missed Garbage Pick-Up Complaint,Medium,0.5
+No Air Conditioning,Medium,0.4
+No Building Permit and Construction Violation,Medium,0.4
+No Solicitation Complaint,Medium,0.4
+No Water Complaint,Critical,1.0
+Nuisance Animal Complaint,Medium,0.5
+Open Fire Hydrant Complaint,Critical,1.0
+Outdated Merchandise Complaint,Medium,0.4
+Paid Sick Leave Violation,Medium,0.4
+Pavement Cave-In Inspection Request,Critical,1.0
+Pet Wellness Check Request,Medium,0.4
+Porch Inspection Request,Medium,0.4
+Pothole in Street Complaint,High,0.75
+Protected Bike Lane - Debris Removal,Medium,0.4
+Public Vehicle Complaint,Medium,0.4
+Pushcart Food Vendor Complaint,Medium,0.4
+Recycling Inspection Request,Medium,0.4
+Recycling Pick Up,Medium,0.5
+Renters and Foreclosure Complaint,Medium,0.4
+Report an Injured Animal,Medium,0.5
+Restaurant Complaint,Low,0.25
+Ridesharing Complaint,Medium,0.4
+Rodent Baiting/Rat Complaint,High,0.75
+Sanitation Code Violation,High,0.75
+Sewer Cave-In Inspection Request,Critical,1.0
+Sewer Cleaning Inspection Request,Medium,0.5
+Shared Housing/Vacation Rental Complaint,Medium,0.4
+Sidewalk Café/Outdoor Dining Complaint,Medium,0.4
+Sidewalk Inspection Request,Medium,0.4
+Sign Repair Request - All Other Signs,Medium,0.5
+Sign Repair Request - Do Not Enter Sign,High,0.75
+Sign Repair Request - One Way Sign,Medium,0.5
+Sign Repair Request - Stop Sign,High,0.75
+Smokeless Tobacco at Sports Event Complaint,Medium,0.4
+Snow – Uncleared Sidewalk Complaint,Medium,0.5
+Stray Animal Complaint,Medium,0.5
+Street Cleaning Request,Medium,0.5
+Street Light On During Day Complaint,Medium,0.4
+Street Light Out Complaint,High,0.75
+Street Light Pole Damage Complaint,High,0.75
+Street Light Pole Door Missing Complaint,Medium,0.4
+Submerged Divvy or Lime Device in the Lake/River,Low,0.25
+Tobacco - General Complaint,Medium,0.4
+Tobacco - Sale to Minors Complaint,Medium,0.4
+Traffic Signal Out Complaint,Critical,1.0
+Tree Debris Clean-Up Request,Medium,0.5
+Tree Emergency,Critical,1.0
+Tree Planting Request,Low,0.25
+Tree Removal Inspection,Medium,0.4
+Tree Trim Request (NO LONGER BEING ACCEPTED),Medium,0.5
+Vacant/Abandoned Building Complaint,High,0.75
+Viaduct Light Out Complaint,High,0.75
+Vicious Animal Complaint,High,0.75
+Wage Complaint,Medium,0.4
+Water Lead Test Kit Request,Low,0.25
+Water Lead Test Visit Request,Low,0.25
+Water On Street Complaint,Critical,1.0
+Water Quality Concern,Medium,0.4
+Water in Basement Complaint,High,0.75
+Weed Removal Request,Medium,0.5
+Wire Basket Request,Medium,0.4
+Yard Waste Pick-Up Request,Medium,0.5

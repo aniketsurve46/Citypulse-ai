@@ -1,0 +1,120 @@
+{
+  "generated_at": "2026-11-22T17:38:02.155177",
+  "data_as_of": "2026-11-22",
+  "model_name": "XGBoost",
+  "sla_definition": "breach = closed in more than 7 days (working proxy)",
+  "closed_rows_raw": 220000,
+  "closed_rows_used": 220000,
+  "closed_date_min": "2026-08-03",
+  "closed_date_max": "2026-11-22",
+  "open_rows": 40000,
+  "open_date_min": "2026-09-25",
+  "open_date_max": "2026-11-22",
+  "train_rows": 176000,
+  "test_rows": 44000,
+  "split_cutoff": "2026-10-21",
+  "overall_breach_rate": 0.3983,
+  "model": {
+    "auroc": 0.9219,
+    "auprc": 0.6431,
+    "brier": 0.0843
+  },
+  "baseline_global_rate": {
+    "auroc": 0.5,
+    "auprc": 0.1416,
+    "brier": 0.1874
+  },
+  "baseline_type_only": {
+    "auroc": 0.9012,
+    "auprc": 0.5608,
+    "brier": 0.1051
+  },
+  "fifo_simulation": {
+    "k": 1000,
+    "fifo_mean_days_to_close": 4.93,
+    "priority_mean_days_to_close": 11.6,
+    "fifo_breach_rate_in_topk": 0.259,
+    "priority_breach_rate_in_topk": 0.862,
+    "note": "All three strategies surface requests that took a long time - that is the point: the jobs most likely to breach are exactly the ones that wait longest under FIFO. Read breach_share / recall in the top-K as 'how well does this order concentrate the eventual breaches into the first K jobs a crew would start'. Blended backtest renormalises Balanced weights over breach+severity+wait because hotspot and duplicate signals are live point-in-time only."
+  },
+  "strategy_comparison": {
+    "k": 1000,
+    "total_breaches_in_test": 6230,
+    "fifo": {
+      "mean_days_to_close_topk": 4.93,
+      "breach_share_in_topk": 0.259,
+      "breaches_captured_topk": 259,
+      "breach_recall_topk": 0.0416
+    },
+    "model_only": {
+      "mean_days_to_close_topk": 10.67,
+      "breach_share_in_topk": 0.761,
+      "breaches_captured_topk": 761,
+      "breach_recall_topk": 0.1222
+    },
+    "blended": {
+      "mean_days_to_close_topk": 11.6,
+      "breach_share_in_topk": 0.862,
+      "breaches_captured_topk": 862,
+      "breach_recall_topk": 0.1384
+    },
+    "note": "All three strategies surface requests that took a long time - that is the point: the jobs most likely to breach are exactly the ones that wait longest under FIFO. Read breach_share / recall in the top-K as 'how well does this order concentrate the eventual breaches into the first K jobs a crew would start'. Blended backtest renormalises Balanced weights over breach+severity+wait because hotspot and duplicate signals are live point-in-time only."
+  },
+  "priority_modes": {
+    "Balanced": {
+      "breach": 0.3,
+      "severity": 0.25,
+      "wait": 0.2,
+      "hotspot": 0.15,
+      "dup": 0.1
+    },
+    "FIFO-first": {
+      "breach": 0.15,
+      "severity": 0.15,
+      "wait": 0.5,
+      "hotspot": 0.1,
+      "dup": 0.1
+    },
+    "Urgency-first": {
+      "breach": 0.35,
+      "severity": 0.4,
+      "wait": 0.05,
+      "hotspot": 0.1,
+      "dup": 0.1
+    }
+  },
+  "pothole": {
+    "sr_type": "Pothole in Street Complaint",
+    "closed_n": 8215,
+    "open_n": 2540,
+    "median_days": 21.97,
+    "breach_rate": 0.7642
+  },
+  "duplicates": {
+    "open_in_duplicate_groups": 4624,
+    "duplicate_clusters": 1933,
+    "city_flag_rate_within_our_groups": 0.367,
+    "city_flag_rate_overall_open": 0.0931
+  },
+  "hotspots_flagged": 37,
+  "forecast": {
+    "holdout_days": 14,
+    "mae_model": 231.91,
+    "mae_naive_lag7": 293.57,
+    "holdout_start": "2026-11-09",
+    "holdout_end": "2026-11-22"
+  },
+  "fairness": {
+    "areas_compared": 78,
+    "mean_priority_max": 0.5377,
+    "mean_priority_min": 0.4363,
+    "mean_priority_spread": 0.1014,
+    "median_days_max": 8.53,
+    "median_days_min": 0.08,
+    "highest_priority_area": "47",
+    "lowest_priority_area": "3",
+    "note": "Community areas only; no demographic data is used or inferred."
+  },
+  "high_risk_open": 12866,
+  "mean_open_breach_prob": 0.6818
+}
