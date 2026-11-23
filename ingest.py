@@ -40,7 +40,8 @@ EXCLUDED_TYPES = ("311 INFORMATION ONLY CALL", "Aircraft Noise Complaint")
 PAGE = 50000
 SINCE = "2025-11-22T00:00:00"          # last ~12 months
 CLOSED_TARGET = 220000
-OPEN_TARGET = 40000
+OPEN_TARGET = 1000000  # effectively "all open": fetch_cursor stops on its own
+                       # when a page returns no new sr_numbers
 
 
 def get(params):

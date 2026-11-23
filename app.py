@@ -200,6 +200,24 @@ if "live_df" not in st.session_state:
 
 # -------------------------------------------------------------------- sidebar
 with st.sidebar:
+    if st.button("🔄 Refresh data to today", use_container_width=True,
+                 help="Downloads the full current open queue from Chicago 311, "
+                      "rescores it with the saved model and rebuilds this "
+                      "dashboard. Takes a few minutes."):
+        with st.spinner("Refreshing from Chicago 311 — downloading the current "
+                        "queue and rescoring it…"):
+            import refresh as refresh_mod
+            info = refresh_mod.refresh(log=lambda *a, **k: None)
+        st.cache_data.clear()
+        st.session_state.pop("flt_start", None)
+        st.session_state.pop("flt_end", None)
+        st.success(f"Refreshed: {info['open_rows']:,} open requests, "
+                   f"{info['date_min']} → {info['date_max']}.")
+        time.sleep(1.5)
+        st.rerun()
+    st.caption("The dashboard opens on saved data. Refresh pulls today's full "
+               "queue from the city (the model itself is not retrained).")
+    st.markdown("---")
     st.markdown("### 🎛️ Filters")
     dept = st.multiselect("Department", sorted(prio["owner_department"].dropna().unique()))
     types = st.multiselect("Request type", sorted(prio["sr_type"].dropna().unique()))
@@ -207,7 +225,14 @@ with st.sidebar:
     wards = st.multiselect("Ward", sorted(prio["ward"].dropna().astype(str).unique()))
     bands = st.multiselect("Risk band", ["High", "Medium", "Low"], default=["High", "Medium", "Low"])
     dmin, dmax = prio["created_date"].min().date(), prio["created_date"].max().date()
-    drange = st.date_input("Created date range", (dmin, dmax), min_value=dmin, max_value=dmax)
+    dc1, dc2 = st.columns(2)
+    dstart = dc1.date_input("Start date", dmin, min_value=dmin,
+                            max_value=datetime(2030, 12, 31).date(), key="flt_start")
+    dend = dc2.date_input("End date", dmax, min_value=dmin,
+                          max_value=datetime(2030, 12, 31).date(), key="flt_end")
+    if dstart > dend:
+        dstart, dend = dend, dstart
+    drange = (dstart, dend)
     live_only = st.toggle("🔴 LIVE only", value=False)
     search = st.text_input("Search SR # / street", "")
     st.markdown("---")
@@ -265,6 +290,61 @@ with st.sidebar:
                     "carts, missed pickups, tree and street services. Low = graffiti and "
                     "administrative / cosmetic issues. Editable in `priority.py`.")
 
+def fast_blend(df, mode):
+    """Vectorised re-weighting of the priority blend from the stored component
+    columns. Same maths as priority.compute_priority, but no row-wise apply,
+    so it stays fast on the full 200K+ queue. Reasons are handled separately."""
+    if df.empty:
+        return df
+    wts = prio_mod.PRIORITY_MODES[mode]
+    d = df.copy()
+    cd = pd.to_datetime(d["created_date"], errors="coerce")
+    now = pd.Timestamp.now()
+    d["wait_days"] = ((now - cd).dt.total_seconds() / 86400.0).clip(lower=0).fillna(0)
+    d["wait_norm"] = (d["wait_days"] / prio_mod.WAIT_CAP_DAYS).clip(0, 1)
+    sev_map = dict(zip(severity_table["sr_type"].astype(str),
+                       severity_table["severity_score"]))
+    sev = d["sr_type"].astype(str).map(sev_map)
+    d["severity_score"] = sev.fillna(pd.to_numeric(d.get("severity_score"),
+                                                   errors="coerce")).fillna(0.45)
+    ratio = pd.to_numeric(d.get("hotspot_ratio"), errors="coerce").fillna(1.0)
+    d["hotspot_norm"] = ((ratio - 1.0) / 2.0).clip(0, 1)
+    gsize = pd.to_numeric(d.get("dup_group_size"), errors="coerce").fillna(1)
+    d["dup_norm"] = (np.log1p(gsize) / np.log1p(20)).clip(0, 1)
+    d["breach_prob"] = pd.to_numeric(d["breach_prob"], errors="coerce").fillna(0.14)
+    d["priority_score"] = (wts["breach"] * d["breach_prob"] +
+                           wts["severity"] * d["severity_score"] +
+                           wts["wait"] * d["wait_norm"] +
+                           wts["hotspot"] * d["hotspot_norm"] +
+                           wts["dup"] * d["dup_norm"])
+    d["risk_band"] = pd.cut(d["priority_score"], bins=[-0.01, 0.35, 0.55, 1.01],
+                            labels=["Low", "Medium", "High"]).astype(str)
+    return d
+
+
+def _reason_for(r, wts):
+    def f(x, default=0.0):
+        try:
+            v = float(x)
+            return v if pd.notna(v) else default
+        except (TypeError, ValueError):
+            return default
+    parts = {"Delay risk": wts["breach"] * f(r.get("breach_prob")),
+             "Severity": wts["severity"] * f(r.get("severity_score")),
+             "Waiting time": wts["wait"] * f(r.get("wait_norm")),
+             "Area hotspot": wts["hotspot"] * f(r.get("hotspot_norm")),
+             "Repeat reports": wts["dup"] * f(r.get("dup_norm"))}
+    bits = [f"Top factor: {max(parts, key=parts.get)}"]
+    if f(r.get("wait_days")) >= 1:
+        bits.append(f"open {int(f(r.get('wait_days')))}d")
+    if f(r.get("dup_group_size"), 1) > 1:
+        bits.append(f"{int(f(r.get('dup_group_size'), 1))} reports at this address")
+    if f(r.get("hotspot_ratio"), 1) >= 1.5:
+        bits.append(f"area volume {f(r.get('hotspot_ratio'), 1):.1f}× normal")
+    bits.append(str(r.get("severity_tier", "Medium")) + " severity")
+    return " · ".join(bits)
+
+
 base_queue = prio.copy()
 try:
     reps = citizen.load_reports()
@@ -283,15 +363,11 @@ elif not st.session_state.live_df.empty:
 else:
     queue = base_queue
 
-# Re-weight the blend live according to the selected priority mode (cached
-# per mode + data shape so widget interactions stay responsive).
-_cache_key = (mode, len(queue), int(queue["priority_score"].sum() * 1000) if len(queue) else 0)
-if st.session_state.get("blend_key") != _cache_key:
-    queue = prio_mod.compute_priority(queue, mode=mode, now=pd.Timestamp.now())
-    st.session_state.blend_key = _cache_key
-    st.session_state.blend_queue = queue
-else:
-    queue = st.session_state.blend_queue
+# Balanced (the default) uses the saved scores and bands exactly as stored in
+# the data file, so every number in the app agrees with the Model tab and the
+# saved metrics. Other modes re-weight live via the vectorised fast_blend.
+if mode != "Balanced":
+    queue = fast_blend(queue, mode)
 if sources_sel:
     queue = queue[queue["source"].isin(sources_sel)]
 if dept:
@@ -312,6 +388,9 @@ if search:
     queue = queue[queue["sr_number"].str.lower().str.contains(s) |
                   queue["street_address"].astype(str).str.lower().str.contains(s)]
 queue = queue.sort_values("priority_score", ascending=False)
+if mode != "Balanced" and not queue.empty:
+    _top = queue.head(600)
+    queue.loc[_top.index, "reason"] = [_reason_for(r, w) for _, r in _top.iterrows()]
 
 # --------------------------------------------------------------------- header
 newest = prio["created_date"].max()
@@ -324,12 +403,16 @@ today_dec = 0
 if not decisions.empty:
     today_dec = int((pd.to_datetime(decisions["ts"], format="mixed", errors="coerce").dt.date == datetime.now().date()).sum())
 last24 = int((prio["created_date"] >= newest - pd.Timedelta(days=1)).sum())
+n_view = len(queue)
+n_high_view = int((queue["risk_band"].astype(str) == "High").sum()) if n_view else 0
+mean_prob_view = float(queue["breach_prob"].mean()) if n_view else 0.0
 kpis = [
-    ("Open requests (cached)", f"{len(prio):,}", f"+{last24:,} created in last 24h of data"),
-    ("High-risk queue", f"{metrics['high_risk_open']:,}",
-     f"{metrics['high_risk_open']/max(len(prio),1)*100:.1f}% of open requests"),
+    ("Open requests in view", f"{n_view:,}",
+     f"{len(prio):,} in full data · +{last24:,} created in last 24h of data"),
+    ("High-risk in view", f"{n_high_view:,}",
+     f"{n_high_view/max(n_view,1)*100:.1f}% of requests in view"),
     ("Emerging hotspots", f"{metrics['hotspots_flagged']}", "area × type, ≥1.5× normal, z ≥ 2"),
-    ("Avg predicted breach prob", f"{metrics['mean_open_breach_prob']:.2f}",
+    ("Avg predicted breach prob", f"{mean_prob_view:.2f}",
      f"historical breach rate {metrics['overall_breach_rate']:.2f}"),
     ("Decisions made today", f"{today_dec}", f"{len(decisions)} total in log"),
 ]
@@ -357,7 +440,7 @@ with tab_ops:
                                 get_fill_color="color", get_radius=90, pickable=True,
                                 auto_highlight=True))
     if lyr_dup:
-        dup_df = queue[(queue["dup_group_size"] > 1)].dropna(subset=["latitude", "longitude"])
+        dup_df = queue[(queue["dup_group_size"] > 1)].dropna(subset=["latitude", "longitude"]).head(3000)
         if not dup_df.empty:
             layers.append(pdk.Layer("ScatterplotLayer", dup_df,
                                     get_position="[longitude, latitude]",
